@@ -10,21 +10,24 @@ elif [[ $(uname) == "Darwin" ]] ; then
 fi
 
 for vol in $(ls -1 $mountbase) ; do
-	if [[ $vol == "Macintosh" ]] || [[ $vol == "HD" ]]  ; then
-		exit 1
-	fi
-	target_path="$mountbase/$vol/$basepath/$repo.git"
-	if [[ -d $target_path ]] ; then
-		echo Found $target_path
-		git fetch --all
-		git fetch $target_path &&
-			git pull --rebase $target_path $curbranch  && \
-			git push $target_path $curbranch
-		git push $target_path --all
+	if [[ $vol == "Macintosh" ]] ; then
+		:
+	elif [[ $vol == "HD" ]] ; then
+		:
 	else
-		mkdir -p $target_path
-		git init --bare $target_path
-		git push $target_path master
-		git push $target_path --all
+		target_path="$mountbase/$vol/$basepath/$repo.git"
+		if [[ -d $target_path ]] ; then
+			echo Found $target_path
+			git fetch --all
+			git fetch $target_path &&
+				git pull --rebase $target_path $curbranch  && \
+				git push $target_path $curbranch
+			git push $target_path --all
+		else
+			mkdir -p $target_path
+			git init --bare $target_path
+			git push $target_path master
+			git push $target_path --all
+		fi
 	fi
 done
